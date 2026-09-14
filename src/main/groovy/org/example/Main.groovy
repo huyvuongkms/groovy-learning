@@ -10,16 +10,97 @@ static void main(String[] args) {
     extractFailedTestNames()
     reusableValidation()
     analyzeExecutionResults()
+    miniProject()
+}
+
+static void miniProject() {
+    println "Ex10: Mini Project"
+
+    def executions = [
+            [name: "TC001", browser: "Chrome", status: "PASSED", duration: 320],
+            [name: "TC002", browser: "Chrome", status: "FAILED", duration: 1450],
+            [name: "TC003", browser: "Firefox", status: "PASSED", duration: 620],
+            [name: "TC004", browser: "Chrome", status: "FAILED", duration: 2100],
+            [name: "TC005", browser: "Firefox", status: "PASSED", duration: 410]
+    ]
+
+    def getTotalTestCases = { List<Map> tests ->
+        tests
+    }.memoize()
+
+    def getFailedTestCases = { List<Map> tests ->
+        tests.findAll { it.status == "FAILED" }
+    }.memoize()
+
+    def getAverageExecutionTime = { List<Map> tests ->
+        tests ? tests.sum { it.duration } / tests.size() : 0
+    }.memoize()
+
+    def getBrowserMostFailedTestCase = { List<Map> tests ->
+        tests.countBy { it.browser }.max { it.value }
+    }.memoize()
+
+    def getExecutionOverview = { List<Map> tests ->
+        def total = tests.size()
+        def failed = getFailedTestCases(tests).size()
+        def passed = total - failed
+        def averageTime = getAverageExecutionTime(tests)
+        def mostFailedBrowser = getBrowserMostFailedTestCase(
+                getFailedTestCases(tests)
+        )
+        def passRate = total ? (passed * 100 / total) : 0
+
+        """
+- Total Test Cases: $total
+- Passed Test Cases: $passed
+- Failed Test Cases: $failed
+- Most Failed Browser: ${mostFailedBrowser.key} (${mostFailedBrowser.value} failures)
+- Average Execution Time: ${averageTime}ms
+- Pass Rate: ${passRate}%
+"""
+    }.memoize()
+
+    println """
+1. Get the list of total test cases
+2. Get the list of failed test cases
+3. Get execution overview
+4. Exit
+
+Your choice:
+"""
+
+    def choice = System.in.newReader().readLine()
+
+    switch (choice) {
+        case '1':
+            println getTotalTestCases(executions)
+            break
+
+        case '2':
+            println getFailedTestCases(executions)
+            break
+
+        case '3':
+            println getExecutionOverview(executions)
+            break
+
+        case '4':
+            println "Exiting..."
+            break
+
+        default:
+            println "Invalid choice."
+    }
 }
 
 static void analyzeExecutionResults() {
     println "Ex9: Analyze Execution Results"
 
     def results = [
-            [name: "Login",    status: "PASSED", duration: 450],
-            [name: "Search",   status: "FAILED", duration: 1200],
+            [name: "Login", status: "PASSED", duration: 450],
+            [name: "Search", status: "FAILED", duration: 1200],
             [name: "Checkout", status: "FAILED", duration: 800],
-            [name: "Logout",   status: "PASSED", duration: 300]
+            [name: "Logout", status: "PASSED", duration: 300]
     ]
 
     def output = [
