@@ -445,31 +445,31 @@ static void main(String[] args) {
 
 static void jsonFindAndFindAll(def data = [:]) {
     println """
-Find all ACTIVE projects. => 
-Find all projects with budget greater than 100000.
-Find all P1 test cases.
-Find all automated test cases.
-Find all non-automated test cases.
-Find all API test suites.
-Find all enabled environments.
-Find all active team members.
-Find engineers with at least 5 years of experience.
-Find members having Groovy in their skills.
+Find all ACTIVE projects. => ${data["projects"].find { it["status"] == "ACTIVE" }} \n
+Find all projects with budget greater than 100000. => ${data["projects"].find { it["budget"] > 100000 }} \n
+Find all P1 test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["priority"] == "P1" } } \n
+Find all automated test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["automated"] == true }} \n
+Find all non-automated test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["automated"] != true }} \n
+Find all API test suites. => ${data.projects.collectMany { it["testSuites"] }.findAll { it["type"] == "API" } } \n
+Find all enabled environments. => ${data.projects.collectMany { it["environments"] }.findAll { it["enabled"] == true }} \n
+Find all active team members. => ${data.organization.teams.collectMany { it["members"] }.findAll { it["active"] == true }} \n
+Find engineers with at least 5 years of experience. => ${data.organization.teams.collectMany { it["members"] }.findAll { it["experienceYears"] >= 5 }} \n
+Find members having Groovy in their skills. => ${data.organization.teams.collectMany { it["members"] }.findAll { "Groovy" in it["skills"] }}
 """
 }
 
 static void jsonBasicTraversal(def data = [:]) {
     println """
-Print the organization name. => ${data.organization.name}
-Print every team name. => ${data.organization.teams*.name}
-Print every project name. => ${data.projects*.name}
-Print all environment names of PRJ-002. => ${data.projects.find { it.id == "PRJ-002" }["environments"]}
-Print all test suite names. => ${data.projects*.testSuites["name"]}
-Print every test case ID and name. => ${data.projects.collectMany { it.testSuites }.collectMany { it.testCases }.collect { "${it.id} - ${it.name}" }}
-Print all members of the Ruby team. => ${data.organization.teams.find { it.name == "Ruby" }["members"]}
-Print Alice's skills. => ${data.organization.teams.find { it.lead.name == "Alice Nguyen" }["lead"]["skills"]}
-Count the number of projects. ${data.projects.size()}
-Count the number of test cases across all projects. ${data.projects.collectMany { it.testSuites }.collectMany { it.testCases }.size()}
+Print the organization name. => ${data.organization.name} \n
+Print every team name. => ${data.organization.teams*.name} \n
+Print every project name. => ${data.projects*.name} \n
+Print all environment names of PRJ-002. => ${data.projects.find { it.id == "PRJ-002" }["environments"]} \n
+Print all test suite names. => ${data.projects*.testSuites["name"]} \n
+Print every test case ID and name. => ${data.projects.collectMany { it.testSuites }.collectMany { it.testCases }.collect { "${it.id} - ${it.name}" }} \n
+Print all members of the Ruby team. => ${data.organization.teams.find { it.name == "Ruby" }["members"]} \n
+Print Alice's skills. => ${data.organization.teams.find { it.lead.name == "Alice Nguyen" }["lead"]["skills"]} \n
+Count the number of projects. ${data.projects.size()} \n
+Count the number of test cases across all projects. ${data.projects.collectMany { it.testSuites }.collectMany { it.testCases }.size()} \n
 """
 }
 
