@@ -440,7 +440,19 @@ static void main(String[] args) {
 }
 ''');
 //    jsonBasicTraversal(jsondata)
-    jsonFindAndFindAll(jsondata)
+    jsonCollect(jsondata)
+}
+
+static void jsonCollect(def data = [:]) {
+    println """
+Collect every project ID. => ${data.projects.collect { it.id }} \n
+Collect every team member name. => ${data.organization.teams.collectMany { it["members"] }.collect { it.name }} \n
+Collect all test-case IDs. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.collect { it.id }} \n
+Collect all automated test-case names. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["automated"] == true }.collect { it.name }} \n
+Collect all API endpoints. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["api"] }.collect { it["api"]["endpoint"] }} \n
+Convert project objects into: => ${data.projects.collect { it.subMap(['id', 'name', 'budget']) }} \n
+Create a list containing: qwkfpoqwkfpowqkf
+"""
 }
 
 static void jsonFindAndFindAll(def data = [:]) {
