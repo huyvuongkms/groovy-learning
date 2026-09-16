@@ -3,7 +3,6 @@ package org.example
 import groovy.json.JsonSlurper
 
 
-
 static void main(String[] args) {
 //    variableAndBasicLogic()
 //    responseTime()
@@ -451,7 +450,19 @@ Collect all test-case IDs. => ${data.projects.collectMany { it["testSuites"] }.c
 Collect all automated test-case names. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["automated"] == true }.collect { it.name }} \n
 Collect all API endpoints. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["api"] }.collect { it["api"]["endpoint"] }} \n
 Convert project objects into: => ${data.projects.collect { it.subMap(['id', 'name', 'budget']) }} \n
-Create a list containing: qwkfpoqwkfpowqkf
+Create a list containing: => ${data.projects.inject([]) { result, project ->
+        if (project["id"] == "PRJ-001") {
+            def testSuite = project["testSuites"].find { it["id"] == "TS-001" }
+            def testCase = testSuite["testCases"].find { it["id"] == "TC-001" }
+
+            result = [
+                    testCase : testCase["id"],
+                    project  : project["name"],
+                    automated: testCase["automated"]
+            ]
+        }
+        result
+    }}
 """
 }
 
@@ -459,10 +470,10 @@ static void jsonFindAndFindAll(def data = [:]) {
     println """
 Find all ACTIVE projects. => ${data["projects"].find { it["status"] == "ACTIVE" }} \n
 Find all projects with budget greater than 100000. => ${data["projects"].find { it["budget"] > 100000 }} \n
-Find all P1 test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["priority"] == "P1" } } \n
+Find all P1 test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["priority"] == "P1" }} \n
 Find all automated test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["automated"] == true }} \n
 Find all non-automated test cases. => ${data.projects.collectMany { it["testSuites"] }.collectMany { it["testCases"] }.findAll { it["automated"] != true }} \n
-Find all API test suites. => ${data.projects.collectMany { it["testSuites"] }.findAll { it["type"] == "API" } } \n
+Find all API test suites. => ${data.projects.collectMany { it["testSuites"] }.findAll { it["type"] == "API" }} \n
 Find all enabled environments. => ${data.projects.collectMany { it["environments"] }.findAll { it["enabled"] == true }} \n
 Find all active team members. => ${data.organization.teams.collectMany { it["members"] }.findAll { it["active"] == true }} \n
 Find engineers with at least 5 years of experience. => ${data.organization.teams.collectMany { it["members"] }.findAll { it["experienceYears"] >= 5 }} \n
